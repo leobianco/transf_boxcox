@@ -1,0 +1,81 @@
+---
+title: "Projet Final de Modélisation Statistique"
+author: "Romain HATON et Leonardo MARTINS BIANCO"
+date: "11/6/2020"
+output: pdf_document
+---
+# Partie 1: étude théorique.
+
+## Question 1
+
+Le modèle linéaire n'est pas en général compatible avec la transformation de Box-Cox car on assume $y > 0$. On observe alors que si $\lambda > 0$,  
+$$
+\lim_{y \rightarrow 0} \frac{y^{\lambda} - 1}{\lambda} = -\frac{1}{\lambda}
+$$
+De plus, pour un $\lambda$ fixé,
+$$
+\frac{d}{dy} \frac{y^{\lambda} - 1}{\lambda} = y^{\lambda - 1} > 0
+$$
+
+D'où on conclut que $-\frac{1}{\lambda}$ est la valeur la plus petite que la transformation peut atteindre; c'est-à-dire, la transformation est bornée inférieurmente. Or cela implique que les valeurs de $Y$ ne peuvent pas être normalmente distribuées autour d'une valeur pour $Y$ petit, i.e., on vérifie la non-normalité de la transformation, lorsque la regréssion linéaire satisfait une condition de normalité. 
+
+Cependant, de façon pratique on peut utiliser cette transformation si les valeurs de $Y$ ne sont pas trop petites. C'est-à-dire, on assumera la normalité de la transformation quand même.
+
+## Question 2
+
+On a l'hypothèse de normalité pour la variable transformée $h_{\lambda}(y)$, alors on sait sa densité de probabilité (c'est une gaussienne). Pour trouver la densité de $y$, on remarque que la mesure de probabilité change selon la formule de changement de variables de la théorie d'intégration:
+
+$$
+\int dy = \int \tilde{J} \, dh_{\lambda}(y) = \int \tilde{J} f_{h_{\lambda}}(y) dy
+$$
+où $\tilde{J}$ est la valeur absolute du déterminant Jacobien de $h$,
+$$
+f_{h_{\lambda}}(y) = \frac{1}{\sqrt{2 \pi} \sigma} \exp \left(  -\frac{(h_{\lambda}(y) - E)^2}{2 \sigma^2} \right)
+$$
+et $E$ est l'espérance de $h_{\lambda}$, qui par l'hypothèse du modèle linéaire vaut $x \theta$ (ici $x$ denote le vecteur des variables explicatives et $\theta$ le vecteur correspondant des paramètres). On compare les termes et on conclut alors que pour une seule observation,
+
+$$
+p_{\lambda, \theta, \sigma^2}(y) = \frac{\tilde{J}(\lambda; y)}{\sqrt{2 \pi \sigma^2}} \exp \left( -\frac{(h_{\lambda}(y) - x\theta)^2}{2 \sigma^2} \right)
+$$
+Maintenant on peut écrire la vraisemblance générale pour l'observation $(Y_1, \dots, Y_n)$ comme le produit:
+$$
+L(\lambda, \theta, \sigma^2; Y) = \frac{J(\lambda; y)}{(2 \pi \sigma^2)^{\frac{n}{2}}} \exp \left( -\frac{\sum_{i}(h_{\lambda}(y_i) - x_i\theta_i)^2}{2 \sigma^2} \right)
+$$
+(où $J = \Pi_i \, \tilde{J}(\lambda; Y_i)$) et on note que l'on peut écrire la somme $\sum_{i}(h_{\lambda}(y_i) - x_i\theta_i)^2$ comme le produit matriciel $(h_{\lambda}(Y) - X\theta)'(h_{\lambda}(Y) - X\theta)$, où $h_{\lambda}(Y)$ est le vecteur de composantes $h_{\lambda}(Y_i)$ et $X$ la matrice du plan d'expérience. Observons que $x_i$ denote le i-ème vecteur observé de variables explicatives.
+
+## Question 3
+On remarque que l'on a l'hypothèse des résidus gaussiens. Alors, on observe que l'expression trouvée dessus pour la vraisemblance est à un facteur $J(\lambda; y)$ près la même que la vraisemblance trouvée dans le diapo 18 de l'amphi 5. Mais comme $J(\lambda; y)$ ne dépend pas de $\theta$, $\sigma^2$, les estimateurs du maximum de vraisemblance restent essentiellement les mêmes:
+
+$$
+\hat{\theta} = (X'X)^{-1} X'h_{\lambda}(Y)
+$$
+et
+$$
+\hat{\sigma}^2 = \frac{1}{n} (h_{\lambda}(Y) - X \hat{\theta})'(h_{\lambda}(Y) - X \hat{\theta})
+$$
+
+La fonction $L_{max}(\lambda)$ est définie en substituant les EMVs trouvés ci-dessus dans l'expression de la log-vraisemblance: $\log L(\lambda, \hat{\theta}(\lambda), \hat{\sigma}^2(\lambda))$. D'abord,
+$$
+\log L\left(\lambda, \theta, \sigma^{2} ; Y\right) = \log \left(J\left(\lambda; y\right)\right) - \frac{n}{2}\left( \log 2\pi + \log \sigma^2 \right) -\frac{1}{2 \sigma^{2}}\left(h_{\lambda}(Y)-X \theta\right)^{\prime} \left(h_{\lambda}(Y)-X \theta\right)
+$$
+
+On substitut $\hat{\theta}$ et $\hat{\sigma}^2$ dans cette expression. En remarquant que
+$$
+\frac{1}{2 \hat{\sigma}^{2}} \left(h_{\lambda}(Y)-X \hat{\theta}\right)^{\prime} \left(h_{\lambda}(Y)-X \hat{\theta}\right) = \frac{n}{2}
+$$
+et que
+$$
+\tilde{J} = \left| \frac{d \,h_{\lambda}(y)}{dy} \right| = \left| y\right|^{\lambda - 1} \implies J= \left( \Pi_i \, \left| Y_i \right|\right)^{\lambda - 1} \implies \log J = (\lambda - 1)\sum_i \left| Y_i \right|
+$$
+on obtient, si on note $a(n) = -\frac{n}{2} (\log 2\pi + 1)$
+
+$$
+L_{max}(\lambda) = -\frac{n}{2} \log{\hat{\sigma}^2(\lambda)} + (\lambda - 1) \sum_i \log{\left| Y_i \right|} + a(n)
+$$
+
+Ainsi, on voit que l'équation à vérifier par $\hat{\lambda}$ est tout simplement
+$$
+\frac{\partial L_{max}}{\partial \lambda} = 0
+$$
+
+Pour calculer $\hat{\lambda}$, on peut utiliser n'importe quelle méthode numérique d'extrémisation, ou même graphiquement on peut gagner une intuition de la valeur de $\hat{\lambda}$ en regardant le maximum du graphe de $L_{max}(\lambda)$.
